@@ -144,10 +144,9 @@ export const useReferenceStore = create<ReferenceStore>((set, get) => {
       const cached = gamesCache.get(cacheKey);
       if (cached) {
         // Hydrate straight from cache — no network, no loading state.
-        set((state) => ({
+        set(() => ({
           game: { options: cached.options, rows: cached.rows, loading: false, error: null, loaded: true, promise: null },
           gameScope: operatorId || null,
-          ...(state ? {} : {}),
         }) as Partial<ReferenceStore>);
         return Promise.resolve();
       }
