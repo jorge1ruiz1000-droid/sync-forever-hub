@@ -429,7 +429,14 @@ export function ActionDialog({
           }
         }
         if (Object.keys(entry).length > 0) {
-          jsonBody[action.wrapAs.key] = [entry];
+          // A multi-select inside the wrapper fans out into one entry per value.
+          const multi = Object.entries(entry).find(([, v]) => Array.isArray(v));
+          if (multi) {
+            const [multiName, list] = multi as [string, unknown[]];
+            jsonBody[action.wrapAs.key] = list.map((item) => ({ ...entry, [multiName]: item }));
+          } else {
+            jsonBody[action.wrapAs.key] = [entry];
+          }
         }
       }
 

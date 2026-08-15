@@ -933,7 +933,13 @@ export const ACTIONS: Record<string, ActionDef[]> = {
       idKey: "id",
       wrapAs: { key: "permissions", fields: ["permission_id", "effect", "reason"] },
       fields: [
-        { name: "permission_id", label: "Permission", type: "permission", required: true },
+        {
+          name: "permission_id",
+          label: "Permissions",
+          type: "permissions-multi",
+          required: true,
+          help: "Pick one or more permissions; the same effect and reason apply to all of them.",
+        },
         {
           name: "effect",
           label: "Effect",
