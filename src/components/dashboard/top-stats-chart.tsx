@@ -190,6 +190,9 @@ export function TopStatsChart({
                   axisLine={false}
                 />
                 <Tooltip
+                  labelFormatter={(value, payload) =>
+                    (payload?.[0]?.payload as { name?: string } | undefined)?.name ?? String(value)
+                  }
                   contentStyle={{
                     background: "var(--color-popover)",
                     border: "1px solid var(--color-border)",
@@ -226,6 +229,9 @@ export function TopStatsChart({
                 />
                 <Tooltip
                   cursor={{ fill: "var(--color-muted)", opacity: 0.4 }}
+                  labelFormatter={(value, payload) =>
+                    (payload?.[0]?.payload as { name?: string } | undefined)?.name ?? String(value)
+                  }
                   contentStyle={{
                     background: "var(--color-popover)",
                     border: "1px solid var(--color-border)",
