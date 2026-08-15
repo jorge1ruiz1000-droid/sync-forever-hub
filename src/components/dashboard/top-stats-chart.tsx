@@ -136,10 +136,23 @@ export function TopStatsChart({
         },
       }),
   });
+  // Rows for clients/partners often only carry ids; resolve them to names for axis + tooltip.
+  const nameKind = type === "partners" ? "partner" : type === "clients" ? "operator" : null;
+  const ensure = useReferenceStore((s) => s.ensure);
+  const options = useReferenceStore((s) => (nameKind ? s[nameKind].options : null));
 
+  useEffect(() => {
+    if (nameKind) void ensure(nameKind);
+  }, [nameKind, ensure]);
+
+  const names = new Map((options ?? []).map((option) => [option.value, option.label]));
 
   const rows = normalizeList(request.data ?? null).rows;
-  const data = rows.map((row) => ({ label: labelFor(row), value: valueFor(row, metric) }));
+  const data = rows.map((row) => {
+    const resolved = labelFor(row, names);
+    return { label: resolved.label, name: resolved.full, value: valueFor(row, metric) };
+  });
+
 
   return (
     <div className="panel p-4">
