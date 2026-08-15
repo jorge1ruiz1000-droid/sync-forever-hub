@@ -10,21 +10,30 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useEffect } from "react";
 import { apiRequest, normalizeList, type Dict } from "@/lib/api";
 import { formatCompact } from "@/lib/format";
+import { useReferenceStore } from "@/lib/stores/reference-store";
 
 type TopType = "clients" | "games" | "operator-games" | "partners" | "days" | "months";
 type Metric = "ggr" | "total_bets" | "total_stake" | "players" | "total_won" | "total_voided";
 
-function labelFor(row: Dict): string {
+const truncate = (value: string) => (value.length > 18 ? `${value.slice(0, 17)}…` : value);
+
+
+function labelFor(row: Dict, names: Map<string, string>): { label: string; full: string } {
   for (const key of ["name", "client_name", "game_name", "partner_name", "label", "day", "date", "month", "period"]) {
     const value = row[key];
-    if (typeof value === "string" && value) return value.length > 18 ? `${value.slice(0, 17)}…` : value;
-    if (typeof value === "number") return String(value);
+    if (typeof value === "string" && value) return { label: truncate(value), full: value };
+    if (typeof value === "number") return { label: String(value), full: String(value) };
   }
-  const id = row.id ?? row.operator_id ?? row.game_id;
-  return id !== undefined ? `#${String(id)}` : "—";
+  const id = row.id ?? row.operator_id ?? row.client_id ?? row.partner_id ?? row.game_id;
+  if (id === undefined) return { label: "—", full: "—" };
+  const named = names.get(String(id));
+  if (named) return { label: truncate(named), full: named };
+  return { label: `#${String(id)}`, full: `#${String(id)}` };
 }
+
 
 const LABEL_KEYS = new Set([
   "id",
@@ -127,10 +136,23 @@ export function TopStatsChart({
         },
       }),
   });
+  // Rows for clients/partners often only carry ids; resolve them to names for axis + tooltip.
+  const nameKind = type === "partners" ? "partner" : type === "clients" ? "operator" : null;
+  const ensure = useReferenceStore((s) => s.ensure);
+  const options = useReferenceStore((s) => (nameKind ? s[nameKind].options : null));
 
+  useEffect(() => {
+    if (nameKind) void ensure(nameKind);
+  }, [nameKind, ensure]);
+
+  const names = new Map((options ?? []).map((option) => [option.value, option.label]));
 
   const rows = normalizeList(request.data ?? null).rows;
-  const data = rows.map((row) => ({ label: labelFor(row), value: valueFor(row, metric) }));
+  const data = rows.map((row) => {
+    const resolved = labelFor(row, names);
+    return { label: resolved.label, name: resolved.full, value: valueFor(row, metric) };
+  });
+
 
   return (
     <div className="panel p-4">
@@ -168,6 +190,9 @@ export function TopStatsChart({
                   axisLine={false}
                 />
                 <Tooltip
+                  labelFormatter={(value, payload) =>
+                    (payload?.[0]?.payload as { name?: string } | undefined)?.name ?? String(value)
+                  }
                   contentStyle={{
                     background: "var(--color-popover)",
                     border: "1px solid var(--color-border)",
@@ -204,6 +229,9 @@ export function TopStatsChart({
                 />
                 <Tooltip
                   cursor={{ fill: "var(--color-muted)", opacity: 0.4 }}
+                  labelFormatter={(value, payload) =>
+                    (payload?.[0]?.payload as { name?: string } | undefined)?.name ?? String(value)
+                  }
                   contentStyle={{
                     background: "var(--color-popover)",
                     border: "1px solid var(--color-border)",
