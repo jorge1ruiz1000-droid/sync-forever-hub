@@ -15,7 +15,11 @@ import { apiRequest, normalizeList, type Dict } from "@/lib/api";
 import { formatCompact } from "@/lib/format";
 import { useReferenceStore } from "@/lib/stores/reference-store";
 
+type TopType = "clients" | "games" | "operator-games" | "partners" | "days" | "months";
+type Metric = "ggr" | "total_bets" | "total_stake" | "players" | "total_won" | "total_voided";
+
 const truncate = (value: string) => (value.length > 18 ? `${value.slice(0, 17)}…` : value);
+
 
 function labelFor(row: Dict, names: Map<string, string>): { label: string; full: string } {
   for (const key of ["name", "client_name", "game_name", "partner_name", "label", "day", "date", "month", "period"]) {
