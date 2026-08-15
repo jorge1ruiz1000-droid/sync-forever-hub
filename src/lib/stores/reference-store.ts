@@ -219,14 +219,11 @@ export const useReferenceStore = create<ReferenceStore>((set, get) => {
     ensure: (kind) => {
       const current = get()[kind];
       if (kind === "game") {
-        if (get().gameScope !== null) {
-          // list is currently scoped to an operator — reload the unscoped list
-          return loadGamesForOperator("");
+        // Cached scopes resolve instantly; only a cold unscoped list fetches.
+        if (get().gameScope === null && (current.loaded || current.loading)) {
+          return current.promise ?? Promise.resolve();
         }
-        if (current.loaded || current.loading) return current.promise ?? Promise.resolve();
-        const promise = loadGamesForOperator("");
-        set((state) => ({ game: { ...state.game, promise } }) as Partial<ReferenceStore>);
-        return promise;
+        return loadGamesForOperator("");
       }
       if (current.loaded || current.loading) return current.promise ?? Promise.resolve();
       const promise = load(kind);
