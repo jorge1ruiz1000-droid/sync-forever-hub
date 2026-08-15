@@ -10,21 +10,26 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useEffect } from "react";
 import { apiRequest, normalizeList, type Dict } from "@/lib/api";
 import { formatCompact } from "@/lib/format";
+import { useReferenceStore } from "@/lib/stores/reference-store";
 
-type TopType = "clients" | "games" | "operator-games" | "partners" | "days" | "months";
-type Metric = "ggr" | "total_bets" | "total_stake" | "players" | "total_won" | "total_voided";
+const truncate = (value: string) => (value.length > 18 ? `${value.slice(0, 17)}…` : value);
 
-function labelFor(row: Dict): string {
+function labelFor(row: Dict, names: Map<string, string>): { label: string; full: string } {
   for (const key of ["name", "client_name", "game_name", "partner_name", "label", "day", "date", "month", "period"]) {
     const value = row[key];
-    if (typeof value === "string" && value) return value.length > 18 ? `${value.slice(0, 17)}…` : value;
-    if (typeof value === "number") return String(value);
+    if (typeof value === "string" && value) return { label: truncate(value), full: value };
+    if (typeof value === "number") return { label: String(value), full: String(value) };
   }
-  const id = row.id ?? row.operator_id ?? row.game_id;
-  return id !== undefined ? `#${String(id)}` : "—";
+  const id = row.id ?? row.operator_id ?? row.client_id ?? row.partner_id ?? row.game_id;
+  if (id === undefined) return { label: "—", full: "—" };
+  const named = names.get(String(id));
+  if (named) return { label: truncate(named), full: named };
+  return { label: `#${String(id)}`, full: `#${String(id)}` };
 }
+
 
 const LABEL_KEYS = new Set([
   "id",
