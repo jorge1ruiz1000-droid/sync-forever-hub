@@ -134,18 +134,36 @@ export const useReferenceStore = create<ReferenceStore>((set, get) => {
   // Loaded game lists are cached per scope ("" = unscoped master list) so
   // revisiting a page or re-selecting an operator reuses them.
   const gamesCache = new Map<string, { options: Option[]; rows: Dict[] }>();
+  // In-flight requests per scope so concurrent dropdowns share one fetch
+  // instead of cancelling each other and leaving `loading` stuck on.
+  const gamesInflight = new Map<string, Promise<void>>();
 
-  const loadGamesForOperator = async (operatorId: string, force = false) => {
+  const loadGamesForOperator = (operatorId: string, force = false): Promise<void> => {
+    const cacheKey = operatorId || "";
+    if (!force) {
+      const cached = gamesCache.get(cacheKey);
+      if (cached) {
+        // Hydrate straight from cache — no network, no loading state.
+        set((state) => ({
+          game: { options: cached.options, rows: cached.rows, loading: false, error: null, loaded: true, promise: null },
+          gameScope: operatorId || null,
+          ...(state ? {} : {}),
+        }) as Partial<ReferenceStore>);
+        return Promise.resolve();
+      }
+      const pending = gamesInflight.get(cacheKey);
+      if (pending) return pending;
+    }
+    const promise = fetchGamesForOperator(operatorId).finally(() => {
+      if (gamesInflight.get(cacheKey) === promise) gamesInflight.delete(cacheKey);
+    });
+    gamesInflight.set(cacheKey, promise);
+    return promise;
+  };
+
+  const fetchGamesForOperator = async (operatorId: string) => {
     const cfg = CONFIG.game;
     const cacheKey = operatorId || "";
-    const cached = !force && gamesCache.get(cacheKey);
-    if (cached) {
-      set(() => ({
-        game: { ...cached, loading: false, error: null, loaded: true, promise: null },
-        gameScope: operatorId || null,
-      }) as Partial<ReferenceStore>);
-      return;
-    }
     set((state) => ({ game: { ...state.game, loading: true, error: null } }) as Partial<ReferenceStore>);
     try {
       const payload = operatorId
