@@ -4,7 +4,7 @@ import * as Icons from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ADMIN_ONLY_PATHS, NAV, type NavSection } from "@/lib/endpoints";
 import { canAccess, isClientAdmin, useAuth, useClientScope, userLabel, userRole } from "@/lib/use-auth";
-import { API_BASE, type Dict } from "@/lib/api";
+import { type Dict } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
@@ -224,12 +224,6 @@ function SidebarContent({
         ))}
       </nav>
 
-      <div className="border-t border-border px-4 py-3">
-        <p className="label-eyebrow">Environment</p>
-        <p className="num mt-1 truncate text-xs text-muted-foreground">
-          {API_BASE.replace("https://", "")}
-        </p>
-      </div>
     </aside>
   );
 }
