@@ -1,6 +1,7 @@
 import { ImageOff } from "lucide-react";
 import type { Dict } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { statusMeta } from "@/lib/status-labels";
 
 const STATUS_LABELS: Record<string, string> = {
   "1": "Active",
@@ -38,16 +39,17 @@ export function StatusCell({ row }: { row: Dict }) {
 export function FreebetStatusCell({ row }: { row: Dict }) {
   const raw = row.status;
   const key = raw === null || raw === undefined ? "" : String(raw).trim().toLowerCase();
-  const active = ["1", "active", "true", "yes"].includes(key);
-  const inactive = ["0", "2", "3", "inactive", "false", "no"].includes(key);
-  const label = active ? "Active" : inactive ? "Inactive" : key ? String(raw) : "—";
+  const meta = statusMeta("freebet_status", key);
+  const label = meta?.label ?? (["active", "true", "yes"].includes(key) ? "Active" : key ? String(raw) : "—");
+  const tone = meta?.tone ?? (["active", "true", "yes"].includes(key) ? "positive" : "neutral");
   return (
     <span
       className={cn(
         "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px]",
-        active && "border-success/40 bg-success/10 text-success",
-        inactive && "border-destructive/40 bg-destructive/10 text-destructive",
-        !active && !inactive && "border-border-strong bg-muted/50 text-muted-foreground",
+        tone === "positive" && "border-success/40 bg-success/10 text-success",
+        tone === "negative" && "border-destructive/40 bg-destructive/10 text-destructive",
+        tone === "warning" && "border-warning/40 bg-warning/10 text-warning",
+        tone === "neutral" && "border-border-strong bg-muted/50 text-muted-foreground",
       )}
     >
       {label}

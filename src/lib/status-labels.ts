@@ -31,8 +31,8 @@ const IS_POSTED: Record<string, Entry> = {
 
 const FREEBET_STATUS: Record<string, Entry> = {
   "1": { label: "Active", tone: "positive" },
-  "2": { label: "Revoked", tone: "negative" },
-  "3": { label: "Inactive", tone: "neutral" },
+  "2": { label: "Inactive", tone: "neutral" },
+  "3": { label: "Revoked", tone: "negative" },
   "4": { label: "Expired", tone: "warning" },
 };
 
