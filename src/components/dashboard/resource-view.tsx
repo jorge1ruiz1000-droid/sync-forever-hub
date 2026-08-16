@@ -333,7 +333,9 @@ export function ResourceView({ resource }: { resource: ResourceDef }) {
                 rowActions.length > 0
                   ? (row) => (
                       <>
-                        {rowActions.map((action) => (
+                        {rowActions
+                          .filter((action) => !action.showFor || action.showFor(row as Record<string, unknown>))
+                          .map((action) => (
                           <button
                             key={action.key}
                             onClick={() =>

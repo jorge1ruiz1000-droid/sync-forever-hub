@@ -81,6 +81,8 @@ export type ActionDef = {
    * `{ permissions: [{ permission_id, effect, reason }] }`.
    */
   wrapAs?: { key: string; fields: string[] };
+  /** Row-level predicate: when set, the row action only renders if it returns true. */
+  showFor?: (row: Record<string, unknown>) => boolean;
   /** Permission(s) required to see this action button. */
   permission?: string | string[];
   /**
@@ -849,6 +851,12 @@ export const ACTIONS: Record<string, ActionDef[]> = {
       path: "/api/v1/promotions/freebet-awards/{id}/revoke",
       idKey: "freebet_uuid",
       danger: true,
+      // Only an active freebet can be revoked.
+      showFor: (row) => {
+        const s = row["status"];
+        const key = s === null || s === undefined ? "" : String(s).trim().toLowerCase();
+        return ["1", "active", "true", "yes"].includes(key);
+      },
     },
   ],
 

@@ -1,6 +1,7 @@
 import { ImageOff } from "lucide-react";
 import type { Dict } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { statusMeta } from "@/lib/status-labels";
 
 const STATUS_LABELS: Record<string, string> = {
   "1": "Active",
