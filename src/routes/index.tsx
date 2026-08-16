@@ -8,7 +8,7 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { StatsExplorer } from "@/components/dashboard/stats-explorer";
 import { ReferenceSelect } from "@/components/dashboard/reference-select";
 import { DateRangeField } from "@/components/ui/date-range-field";
-import { formatStatValue, humanizeKey, todayISO } from "@/lib/format";
+import { formatStatValue, humanizeKey, monthsAgoISO, todayISO } from "@/lib/format";
 import { parseOperatorId, useDashboardStore } from "@/lib/stores/dashboard-store";
 
 
