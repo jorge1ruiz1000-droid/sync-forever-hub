@@ -1,4 +1,4 @@
-export const API_BASE = "https://api.backoffice.staging.betkraft.co.uk";
+export const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "";
 
 const TOKEN_KEY = "bk_access_token";
 const REFRESH_KEY = "bk_refresh_token";
@@ -133,7 +133,7 @@ export async function apiRequest<T = Json>(
       body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
     });
   } catch {
-    throw new ApiError("Network error — the staging API is unreachable.", 0, null);
+    throw new ApiError("Network error — the API is unreachable.", 0, null);
   }
 
   const text = await response.text();

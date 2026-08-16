@@ -37,7 +37,6 @@ export function AuthCard({
             alt="EuroVirtuals — built to perform"
             className="h-12 w-auto max-w-full object-contain"
           />
-          <p className="label-eyebrow">Backoffice · staging</p>
         </div>
 
 
