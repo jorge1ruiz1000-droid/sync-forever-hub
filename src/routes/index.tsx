@@ -150,6 +150,8 @@ function Overview() {
             { label: "7d", from: todayISO(-6), to: todayISO() },
             { label: "30d", from: todayISO(-29), to: todayISO() },
             { label: "90d", from: todayISO(-89), to: todayISO() },
+            { label: "6m", from: monthsAgoISO(-5), to: todayISO() },
+            { label: "12m", from: monthsAgoISO(-11), to: todayISO() },
           ].map((preset) => {
             const active = dateFrom === preset.from && dateTo === preset.to;
             return (

@@ -153,6 +153,14 @@ export function todayISO(offsetDays = 0): string {
   return date.toISOString().slice(0, 10);
 }
 
+/** ISO date `offsetMonths` calendar months from today (UTC). */
+export function monthsAgoISO(offsetMonths = 0): string {
+  const date = new Date();
+  date.setUTCDate(1);
+  date.setUTCMonth(date.getUTCMonth() + offsetMonths);
+  return date.toISOString().slice(0, 10);
+}
+
 /** Strip API endpoint references (e.g. "GET /api/v1/bets — ") from user-facing copy. */
 export function stripEndpoint(text?: string | null): string {
   if (!text) return "";
